@@ -1,4 +1,4 @@
-name: Build and Release Gotodo
+name: Build and Release gotodo
 
 on:
   push:
@@ -20,41 +20,41 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.24'
+          go-version-file: 'go.mod'
 
       - name: Build binary
         run: |
           mkdir -p build
           EXT=""
           if [[ "${{ matrix.os }}" == "windows" ]]; then EXT=".exe"; fi
-          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o build/Gotodo-${{ matrix.os }}-${{ matrix.arch }}${EXT} main.go
+          GOOS=${{ matrix.os }} GOARCH=${{ matrix.arch }} go build -o build/gotodo-${{ matrix.os }}-${{ matrix.arch }}${EXT} main.go
 
       - name: Archive binary
         run: |
           cd build
           EXT=""
           if [[ "${{ matrix.os }}" == "windows" ]]; then EXT=".exe"; fi
-          FILENAME=Gotodo-${{ matrix.os }}-${{ matrix.arch }}${EXT}
-          zip ${{ runner.temp }}/Gotodo-${{ matrix.os }}-${{ matrix.arch }}.zip $FILENAME
+          FILENAME=gotodo-${{ matrix.os }}-${{ matrix.arch }}${EXT}
+          zip ${{ runner.temp }}/gotodo-${{ matrix.os }}-${{ matrix.arch }}.zip $FILENAME LICENSE
         shell: bash
 
       - name: Upload artifact for release
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.os }}-${{ matrix.arch }}-binary
-          path: ${{ runner.temp }}/Gotodo-${{ matrix.os }}-${{ matrix.arch }}.zip
+          path: ${{ runner.temp }}/gotodo-${{ matrix.os }}-${{ matrix.arch }}.zip
 
   release:
     needs: build
     runs-on: ubuntu-latest
     permissions:
-      contents: write # This permission is required to create a release
+      contents: write
 
     steps:
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
-          path: ./artifacts # All artifacts will be downloaded into subdirectories here
+          path: ./artifacts
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
